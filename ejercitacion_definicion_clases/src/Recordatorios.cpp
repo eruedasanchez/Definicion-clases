@@ -140,6 +140,7 @@ public:
     bool operator==(Horario o);
     bool operator<(Horario h);
 
+
 private:
     /* Completar miembros internos */
     Fecha fecha_;
@@ -175,13 +176,16 @@ public:
     Agenda(Fecha fecha_inicial);
     void agregar_recordatorio(Recordatorio rec);
     void incrementar_dia();
-    list<Recordatorio> recordatorios_de_hoy();
+
+    int encontrarMinHorario(vector<Recordatorio> &vrec, int desde, int hasta);
+    void intercambiar(vector<Recordatorio> &lrec, int indice, int minimo);
+    void ordenarPorHora(vector<Recordatorio> &lrec);
+    vector<Recordatorio> recordatorios_de_hoy();
     Fecha hoy();
-    list<Recordatorio> ordenarPorHora(list<Recordatorio> lrec);
 
 private:
     /* Completar miembros internos */
-    list<Recordatorio> agenda_;
+    vector<Recordatorio> agenda_;
     Fecha fecha_actual_;
 };
 
@@ -196,27 +200,32 @@ void Agenda::incrementar_dia() {
 
 }
 
-list<Recordatorio> Agenda::ordenarPorHora(list<Recordatorio> lrec){
-    list<Recordatorio> ordenados;
-    for(Recordatorio rec: lrec){
-        Horario minHora = rec.hora();
-        Recordatorio minHsRec = rec;
-        for(Recordatorio recIndex: lrec){
-            if(recIndex.hora() < minHora){
-                minHora = recIndex.hora();
-                minHsRec = recIndex;
-            }
+int Agenda::encontrarMinHorario(vector<Recordatorio> &vrec, int desde, int hasta){
+    int min = desde;
+    for(int i = desde+1; i < hasta; i++){
+        if(vrec[i].hora() < vrec[min].hora()){
+            min = i;
         }
-        ordenados.push_back(minHsRec);
-        lrec.erase(lrec.begin());
-
     }
-    return ordenados;
+    return min;
 }
 
-list<Recordatorio> Agenda::recordatorios_de_hoy(){
-    list<Recordatorio> recordatoriosHoy;
-    list<Recordatorio> ordenadosPorHorario;
+void Agenda::intercambiar(vector<Recordatorio> &lrec, int indice, int minimo){
+    Recordatorio tmp = lrec[indice];
+    lrec[indice] = lrec[minimo];
+    lrec[minimo] = tmp;
+}
+
+void Agenda::ordenarPorHora(vector<Recordatorio> &lrec){
+    for(int i = 0; i < lrec.size(); i++){
+        int minHorario = encontrarMinHorario(lrec, i, lrec.size());
+        intercambiar(lrec, i, minHorario);
+    }
+
+}
+
+vector<Recordatorio> Agenda::recordatorios_de_hoy(){
+    vector<Recordatorio> recordatoriosHoy;
 
     /* Se recorre toda la agenda, se compara la fecha actual con la de los recordatorios y cuando coincidad, se agregan a la lista */
     for(Recordatorio r: agenda_){
@@ -224,17 +233,23 @@ list<Recordatorio> Agenda::recordatorios_de_hoy(){
             recordatoriosHoy.push_back(r);
         }
     }
-    ordenadosPorHorario = ordenarPorHora(recordatoriosHoy);
-    return ordenadosPorHorario;
+    ordenarPorHora(recordatoriosHoy);
+    return recordatoriosHoy;
 }
 
 Fecha Agenda::hoy(){
     return fecha_actual_;
 }
 
-/*
-ostream& operator<<(ostream& os, Recordatorio r) {
-    os << r.mensaje() << " " << "@" << " " <<  r.fecha() << " " <<  r.hora();
+ostream& operator<<(ostream& os, Agenda a) {
+    os << a.hoy() << endl;
+    os << "=====" << endl;
+    vector<Recordatorio> recordatoriosDiaActualOrdenados = a.recordatorios_de_hoy();
+    for(Recordatorio rec: recordatoriosDiaActualOrdenados){
+        os << rec << endl;
+    }
     return os;
 }
- */
+
+
+
