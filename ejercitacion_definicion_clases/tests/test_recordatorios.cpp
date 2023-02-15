@@ -124,6 +124,7 @@ TEST(Agenda, ordenado) {
   EXPECT_EQ(ss.str(), ss2.str());
 }
 
+
 TEST(Agenda, desordenado) {
   Agenda a(Fecha(5, 10));
   a.agregar_recordatorio(Recordatorio(Fecha(5, 10), Horario(11, 0), "Labo Algo2"));
@@ -162,4 +163,7 @@ TEST(Agenda, cambio_dia) {
   ss2c << "Labo Algo2 @ 10/5 11:0" << endl;
   EXPECT_EQ(ss2.str(), ss2c.str());
 }
+
+/********** Todos los casos de tests funcionan correctamente :) **********/
+
 #endif
